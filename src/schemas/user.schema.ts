@@ -31,6 +31,7 @@ export const UserSchema = new Schema(
       type: String,
       required: true,
       minlength: 3,
+      select: false,
     },
     rol: {
       type: Number,
@@ -41,29 +42,6 @@ export const UserSchema = new Schema(
   { timestamps: true, versionKey: false },
 );
 
-/*
-// encrypt password
-UserSchema.pre('save', function (next) {
-  // only hash the password if it has been modified (or is new)
-  const user = this;
-  console.dir({ user });
-
-  if (!this.isModified('password')) return next();
-
-  // generate a salt
-  bcrypt.genSalt(10, function (err, salt) {
-    if (err) return next(err);
-
-    // hash the password using our new salt
-    bcrypt.hash(this.password, salt, function (err, hash) {
-      if (err) return next(err);
-      // override the cleartext password with the hashed one
-      this.password = hash;
-      next();
-    });
-  });
-});
-*/
 /*
 // compare password
 UserSchema.methods.comparePassword = function (password) {

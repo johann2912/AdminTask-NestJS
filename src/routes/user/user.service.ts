@@ -32,7 +32,6 @@ export class UserService {
 
     const salt = await bcrypt.genSalt(10);
     const password = await bcrypt.hash(userNew.password, salt);
-    console.log(password);
 
     userNew.password = password;
 
