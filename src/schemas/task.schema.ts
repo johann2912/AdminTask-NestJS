@@ -1,5 +1,5 @@
 import { Schema, Types } from 'mongoose';
-import { StatusTask } from 'src/enums/task.enum';
+import { Etask } from 'src/enums/task.enum';
 
 export const TaskSchema = new Schema(
   {
@@ -22,8 +22,8 @@ export const TaskSchema = new Schema(
       required: false,
     },
     estado: {
-      type: String,
-      default: StatusTask.pendiente,
+      type: Number,
+      default: Etask.pendiente,
     },
   },
   { timestamps: true, versionKey: false },

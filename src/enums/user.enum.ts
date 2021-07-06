@@ -1,5 +1,5 @@
-export const RoleUser = {
-  asistencial: 'asistencial',
-  administrativo: 'administrativo',
-  generencial: 'gerencial',
-};
+export enum Erole {
+  'asistencial' = 0,
+  'administrativo' = 1,
+  'generencial' = 2,
+}

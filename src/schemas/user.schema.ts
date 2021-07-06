@@ -33,6 +33,8 @@ export const UserSchema = new Schema(
       minlength: 3,
     },
     rol: {
+      type: Number,
+      enum: [0, 1, 2],
       require: false,
     },
   },
