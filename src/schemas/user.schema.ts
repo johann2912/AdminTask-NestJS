@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { bcrypt } from 'bcrypt';
+// import * as bcrypt from 'bcrypt';
 
 export const UserSchema = new Schema(
   {
@@ -41,9 +41,13 @@ export const UserSchema = new Schema(
   { timestamps: true, versionKey: false },
 );
 
+/*
 // encrypt password
 UserSchema.pre('save', function (next) {
   // only hash the password if it has been modified (or is new)
+  const user = this;
+  console.dir({ user });
+
   if (!this.isModified('password')) return next();
 
   // generate a salt
@@ -59,7 +63,7 @@ UserSchema.pre('save', function (next) {
     });
   });
 });
-
+*/
 /*
 // compare password
 UserSchema.methods.comparePassword = function (password) {
