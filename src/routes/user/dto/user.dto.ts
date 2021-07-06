@@ -3,11 +3,11 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class UserCreateDTO {
   @IsString()
   @IsNotEmpty()
-  name: string;
-  last_name: string;
-  document: string;
-  document_number: string;
-  email: string;
-  password: string;
-  role: number;
+  readonly name: string;
+  readonly last_name: string;
+  readonly document: string;
+  readonly document_number: string;
+  readonly email: string;
+  readonly password: string;
+  readonly rol: number;
 }
