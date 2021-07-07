@@ -8,12 +8,13 @@ import { Task } from 'src/interfaces/task.interface';
 export class TaskService {
   constructor(@InjectModel('Task') private readonly taskModel: Model<Task>) {}
 
+  // Search all task
   async getTasks(): Promise<Task[]> {
     const tasks = await this.taskModel.find();
     return tasks;
   }
 
-  // Buscar tarea por ID de usuario
+  // Search task for ID user
   async getTask(taskID: string): Promise<Task[]> {
     const task = await this.taskModel.find({
       usuario: taskID,
@@ -21,7 +22,7 @@ export class TaskService {
     return task;
   }
 
-  //Buscar tarea por ID de usuario y Estado
+  // Search task for ID user and status
   async getTaskStatus(taskID: string, status: number): Promise<Task[]> {
     const taskStatus = await this.taskModel.find({
       usuario: taskID,

@@ -9,4 +9,8 @@ export const JwtSchema = new Schema({
     type: String,
     require: true,
   },
+  refresh: {
+    type: String,
+    require: true,
+  },
 });
