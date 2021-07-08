@@ -8,36 +8,24 @@ import { Ijwt } from 'src/interfaces/jwt.interface';
 @Injectable()
 export class Jwt {
   constructor(
-    @InjectModel('Tokens') private readonly tokenModel: Model<Ijwt>,
+    @InjectModel('JwtSchema') private readonly tokenModel: Model<Ijwt>,
     private configService: ConfigService,
   ) {}
 
-  /*
-  ensureToken = async (req) => {
-    const authorization = req.headers['authorization'];
-
-    if (!authorization) return { message: 'Inicia session, intenta más tarde' };
-    const bearer = authorization.split(' ');
-    const bearerToken = bearer[1];
-    req.token = bearerToken;
-    req.message = await this.compare(req);
-
-    const decoded = jwt.verify(req.token, process.env.ACCESS_SECRET);
-    console.log(decoded);
-    //req.id = decoded.id;
-  };
-  */
-
   // Create token
-  async createToken(Interface: Ijwt) {
+  async createToken(tokenInfo: Ijwt) {
     const accessToken = jwt.sign(
-      Interface,
+      {
+        id: tokenInfo.id,
+      },
       this.configService.get<string>('ACCESS_SECRET'),
       { expiresIn: '3h' },
     );
 
     const refreshToken = jwt.sign(
-      Interface,
+      {
+        id: tokenInfo,
+      },
       this.configService.get<string>('REFRESH_SECRET'),
       { expiresIn: '10h' },
     );
@@ -50,14 +38,17 @@ export class Jwt {
 
   // Comparate token
   async decodeToken(token: string) {
-    const tokens = await this.tokenModel.findOne({ token: token });
+    const tokens = await this.tokenModel.findOne({ token }).lean();
+    //console.dir({ tokens, token });
     if (!tokens) throw new BadRequestException('token invalid');
     const decodedToken: any = jwt.verify(
       token,
       this.configService.get<string>('ACCESS_SECRET'),
     );
+    if (!decodedToken || decodedToken == false)
+      throw new BadRequestException('an error occurred');
     // Decode token
-    return decodedToken.rol;
+    return decodedToken.id;
   }
 
   // Refresh token

@@ -7,7 +7,9 @@ import {
   Body,
   Param,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
+import { AccessGuard } from 'src/config/guards/guard.guard';
 import { UserCreateDTO } from './dto/user.dto';
 import { UserService } from './user.service';
 
@@ -24,6 +26,7 @@ export class UserController {
     };
   }
 
+  @UseGuards(AccessGuard)
   @Get('/')
   async getUsers() {
     const users = await this.userService.getUsers();

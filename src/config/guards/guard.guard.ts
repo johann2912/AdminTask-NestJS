@@ -1,5 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  BadRequestException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Jwt } from '../jwt/jwt.service';
 
@@ -10,12 +14,13 @@ export class AccessGuard implements CanActivate {
     private readonly jwtService: Jwt,
   ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
-    const token = request.header['authorization'].split(' ')[1];
-    //this.jwtService(token);
+    const auth = request.headers['authorization'];
+    const token = auth && auth.split(' ')[1];
+    if (typeof token === 'undefined')
+      throw new BadRequestException('token undefined');
+    request.user = await this.jwtService.decodeToken(token);
     return true;
   }
 

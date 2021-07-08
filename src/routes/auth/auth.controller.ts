@@ -5,7 +5,11 @@ import {
   NotFoundException,
   Body,
   UseGuards,
+  ForbiddenException,
+  Get,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AccessGuard } from 'src/config/guards/guard.guard';
 import { AuthService } from './auth.service';
 
@@ -16,6 +20,8 @@ export class AuthController {
   @Post('/logIn')
   async logIn(@Body('email') email, @Body('password') password) {
     const logged = await this.authService.logIn(email, password);
+    if (!logged)
+      throw new ForbiddenException('an error occurred with the credentials');
     return {
       message: 'session successfully logged in',
       user: logged,
@@ -24,12 +30,17 @@ export class AuthController {
 
   @UseGuards(AccessGuard)
   @Delete('/logOut')
-  async logOut(@Body('user') user: string) {
-    const unlogged = await this.authService.logOut(user);
+  async logOut(@Req() req: Request) {
+    const unlogged = await this.authService.logOut(req);
     if (!unlogged)
       throw new NotFoundException('an error occurred try again later');
     return {
       message: 'session closed successfully',
     };
+  }
+
+  @Get('/refresh/:tokenId')
+  refreshToken() {
+    return 'refrescar token';
   }
 }

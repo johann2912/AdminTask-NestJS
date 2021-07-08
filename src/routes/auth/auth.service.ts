@@ -45,13 +45,17 @@ export class AuthService {
     return tokens;
   }
 
-  async logOut(token: string) {
-    const user = await this.tokenModel.findOne({ token: token });
-    if (!user)
-      throw new NotFoundException('it is not possible to perform this action');
-    await this.tokenModel.deleteOne({ _id: user._id });
+  async logOut(id) {
+    await this.tokenModel.deleteOne({ id: id.user });
     return {
       message: 'user deleted successfully',
     };
+  }
+
+  async refresh(tokenid: string) {
+    const token = await this.tokenModel.findOne({ tokenid });
+    if (!token) throw new NotFoundException('the token does not exist');
+    const tokenRefresh = await this.jwtService.refreshToken(tokenid);
+    return tokenRefresh;
   }
 }

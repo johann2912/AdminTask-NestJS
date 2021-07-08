@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskCreateDTO } from './dto/task.dto';
 import { Task } from 'src/interfaces/task.interface';
+import * as dayjs from 'dayjs';
+import { Etask } from 'src/enums/task.enum';
 
 @Injectable()
 export class TaskService {
@@ -11,7 +13,8 @@ export class TaskService {
   // Search all task
   async getTasks(): Promise<Task[]> {
     const tasks = await this.taskModel.find();
-    return tasks;
+    const tasksAll = await this.AtrasadaStatus(tasks);
+    return tasksAll;
   }
 
   // Search task for ID user
@@ -50,4 +53,18 @@ export class TaskService {
     );
     return taskUpdate;
   }
+
+  AtrasadaStatus = async (atrasada) => {
+    const variables = [...atrasada];
+    variables.forEach((esperando, index) => {
+      const timely = dayjs().diff(dayjs(esperando.fechaLimite));
+      if (esperando.estado == Etask.pendiente) {
+        if (timely > 0) {
+          variables[index].estado = Etask.atrasado;
+        }
+      }
+    });
+
+    return variables;
+  };
 }

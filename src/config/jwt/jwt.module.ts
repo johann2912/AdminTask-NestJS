@@ -6,7 +6,9 @@ import { Jwt } from './jwt.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Tokens', schema: JwtSchema }]),
+    MongooseModule.forFeature([
+      { name: 'JwtSchema', schema: JwtSchema, collection: 'jwtschemas' },
+    ]),
     ConfigModule,
   ],
   providers: [Jwt],
