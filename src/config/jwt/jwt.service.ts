@@ -4,11 +4,13 @@ import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Ijwt } from 'src/interfaces/jwt.interface';
+import { User } from 'src/interfaces/user.interface';
 
 @Injectable()
 export class Jwt {
   constructor(
     @InjectModel('JwtSchema') private readonly tokenModel: Model<Ijwt>,
+    @InjectModel('User') private readonly userSchema: Model<User>,
     private configService: ConfigService,
   ) {}
 
@@ -16,7 +18,7 @@ export class Jwt {
   async createToken(tokenInfo: Ijwt) {
     const accessToken = jwt.sign(
       {
-        id: tokenInfo.id,
+        id: tokenInfo,
       },
       this.configService.get<string>('ACCESS_SECRET'),
       { expiresIn: '3h' },
@@ -73,5 +75,30 @@ export class Jwt {
       accessToken: tokenRefresh,
       refreshToken,
     };
+  }
+
+  //verify user
+  async typeRole(id: string) {
+    console.dir(id);
+    const user = await this.userSchema.findById(id).lean();
+    const all = await this.userSchema.find();
+    console.dir({ all });
+    //console.dir({ tokens, token });
+    console.log(user);
+    if (!user.rol) throw new BadRequestException('Usuario sin rol');
+    let rol = '';
+    switch (user.rol) {
+      case 0:
+        rol = 'asistencial';
+        break;
+      case 1:
+        rol = 'administrativo';
+        break;
+      case 2:
+        rol = 'gerencial';
+        break;
+    }
+    // Decode token
+    return rol;
   }
 }

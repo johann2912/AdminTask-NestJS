@@ -9,6 +9,7 @@ import {
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
+import { Roles } from 'src/config/decorators/role.decorator';
 import { AccessGuard } from 'src/config/guards/guard.guard';
 import { UserCreateDTO } from './dto/user.dto';
 import { UserService } from './user.service';
@@ -37,6 +38,7 @@ export class UserController {
     };
   }
 
+  @UseGuards(AccessGuard)
   @Get('/:userId')
   async getUser(@Param('userId') userId) {
     const user = await this.userService.getUser(userId);
@@ -47,6 +49,7 @@ export class UserController {
     };
   }
 
+  @UseGuards(AccessGuard)
   @Delete('/delete/:userId')
   async deleteUser(@Param('userId') userId) {
     const userDelete = await this.userService.deleteUser(userId);
@@ -57,6 +60,8 @@ export class UserController {
     };
   }
 
+  @Roles('gerencial')
+  @UseGuards(AccessGuard)
   @Put('/update/:userId')
   async updateUser(
     @Body() userCreateDTO: UserCreateDTO,

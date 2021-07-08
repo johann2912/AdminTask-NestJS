@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   NotFoundException,
+  Patch,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskCreateDTO } from './dto/task.dto';
@@ -77,5 +78,11 @@ export class TaskController {
       message: 'Updating Task Succesfuly',
       task: taskUpdate,
     };
+  }
+
+  @Patch('/check/:id')
+  async checkTask(@Param('id') id: string) {
+    const cambio = await this.taskService.checkTask(id);
+    return cambio;
   }
 }
