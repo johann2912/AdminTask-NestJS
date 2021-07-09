@@ -8,6 +8,7 @@ import {
   ForbiddenException,
   Get,
   Req,
+  Headers,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AccessGuard } from 'src/config/guards/guard.guard';
@@ -40,8 +41,9 @@ export class AuthController {
   }
 
   @Get('/refresh')
-  async refreshToken(@Req() req) {
-    const refresh = await this.authService.refresh(req);
+  async refreshToken(@Headers('authorization') authorization: string) {
+    console.dir(authorization);
+    const refresh = await this.authService.refresh(authorization);
     if (!refresh)
       throw new NotFoundException('an error occurred try again later');
     return {

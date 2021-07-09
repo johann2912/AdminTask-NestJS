@@ -55,12 +55,18 @@ export class Jwt {
 
   // Refresh token
   async refreshToken(tokenRefresh: string) {
-    const tokens = await this.tokenModel.findOne({ token: tokenRefresh });
+    const tokens = await this.tokenModel.findOne({ refresh: tokenRefresh });
     if (!tokens) throw new BadRequestException('token invalid');
     const decodedToken: any = jwt.verify(
       tokenRefresh,
       this.configService.get<string>('REFRESH_SECRET'),
     );
+    const accessToken = jwt.sign(
+      { id: decodedToken.id, rol: decodedToken.rol },
+      this.configService.get<string>('ACCESS_SECRET'),
+      { expiresIn: '3h' },
+    );
+
     const refreshToken = jwt.sign(
       { id: decodedToken.id, rol: decodedToken.rol },
       this.configService.get<string>('REFRESH_SECRET'),
@@ -69,10 +75,10 @@ export class Jwt {
 
     await this.tokenModel.updateOne(
       { _id: tokens._id },
-      { token: tokenRefresh, refres: refreshToken },
+      { token: accessToken, refresh: refreshToken },
     );
     return {
-      accessToken: tokenRefresh,
+      accessToken,
       refreshToken,
     };
   }

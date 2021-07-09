@@ -33,16 +33,29 @@ export class AuthService {
     if (!success) throw new ForbiddenException('Wrong Credentials');
 
     const tokens = await this.jwtService.createToken(user._id);
-
-    const token = await this.tokenModel.create({
-      id: user._id,
-      token: tokens.accessToken,
-      refresh: tokens.refreshToken,
-    });
-
-    token.save();
+    const seGenero = await this.compare(tokens, user._id);
+    if (!seGenero) {
+      const token = await this.tokenModel.create({
+        id: user._id,
+        token: tokens.accessToken,
+        refresh: tokens.refreshToken,
+      });
+      token.save();
+    }
 
     return tokens;
+  }
+
+  async compare(req, id) {
+    const validate = await this.tokenModel.findOne({ id });
+    if (validate != null) {
+      await this.tokenModel.updateOne(
+        { id },
+        { token: req.accessToken, refresh: req.refreshToken },
+      );
+      return true;
+    }
+    return false;
   }
 
   async logOut(id) {
@@ -53,11 +66,12 @@ export class AuthService {
   }
 
   async refresh(tokenid: string) {
-    console.log(tokenid);
-    const token = await this.tokenModel.findOne({ tokenid });
+    const data = tokenid && tokenid.split(' ')[1];
+    const token = await this.tokenModel.findOne({ refresh: data });
     console.log(token);
+
     if (!token) throw new NotFoundException('the token does not exist');
-    const tokenRefresh = await this.jwtService.refreshToken(tokenid);
+    const tokenRefresh = await this.jwtService.refreshToken(data);
     return tokenRefresh;
   }
 }
