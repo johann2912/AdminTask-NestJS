@@ -9,12 +9,5 @@ async function bootstrap() {
   });
 
   await app.listen(4015);
-
-  /*
-  app.use(
-    cors({
-      origin: '*',
-    }),
-  );*/
 }
 bootstrap();

@@ -85,7 +85,7 @@ export class Jwt {
     console.dir({ all });
     //console.dir({ tokens, token });
     console.log(user);
-    if (!user.rol) throw new BadRequestException('Usuario sin rol');
+    if (!user.rol) throw new BadRequestException('User without role');
     let rol = '';
     switch (user.rol) {
       case 0:

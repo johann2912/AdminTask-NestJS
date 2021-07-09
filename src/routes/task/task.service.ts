@@ -5,14 +5,17 @@ import { TaskCreateDTO } from './dto/task.dto';
 import { Task } from 'src/interfaces/task.interface';
 import * as dayjs from 'dayjs';
 import { Etask } from 'src/enums/task.enum';
+import { User } from 'src/interfaces/user.interface';
 
 @Injectable()
 export class TaskService {
-  constructor(@InjectModel('Task') private readonly taskModel: Model<Task>) {}
+  constructor(
+    @InjectModel('Task') private readonly taskModel: Model<Task>, //@InjectModel('User') private readonly userSchema: Model<User>,
+  ) {}
 
   // Search all task
   async getTasks(): Promise<Task[]> {
-    const tasks = await this.taskModel.find();
+    const tasks = await this.taskModel.find(); //.populate('usuario');
     if (!tasks) throw new ForbiddenException('there is no task yet');
     const tasksAll = await this.atrasadaStatus(tasks);
     return tasksAll;

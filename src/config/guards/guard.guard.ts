@@ -30,21 +30,7 @@ export class AccessGuard implements CanActivate {
     for (const pro in roles) {
       if (roles[pro] == rol) role = true;
     }
-    if (!role) throw new BadRequestException('rol no permitido');
+    if (!role) throw new BadRequestException('role not allowed');
     return true;
   }
-
-  /*
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const token = request.header['authorization'].split(' ')[1];
-    if (!token) throw new BadRequestException('tokenhghgg');
-    const respuesta = jwt.compare(request);
-    //console.log(respuesta);
-    Jwt.verify(token, this.configService.get<string>('ACCESS_SECRET'));
-    return true;
-  }
-  */
 }

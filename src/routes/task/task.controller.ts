@@ -8,14 +8,19 @@ import {
   Param,
   NotFoundException,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { TaskCreateDTO } from './dto/task.dto';
+import { Roles } from 'src/config/decorators/role.decorator';
+import { AccessGuard } from 'src/config/guards/guard.guard';
 
 @Controller('task')
 export class TaskController {
   constructor(private taskService: TaskService) {}
 
+  @Roles('gerencial')
+  @UseGuards(AccessGuard)
   @Post('/create')
   async createTask(@Body() createTaskDTO: TaskCreateDTO) {
     const task = await this.taskService.createTask(createTaskDTO);
@@ -35,7 +40,7 @@ export class TaskController {
     };
   }
 
-  // Buscar tarea por ID de usario
+  // Search task by user ID
   @Get('/:taskId')
   async getTask(@Param('taskId') taskId) {
     const task = await this.taskService.getTask(taskId);
@@ -46,7 +51,7 @@ export class TaskController {
     };
   }
 
-  // Buscar tarea por ID de usuario y Estado
+  // Search Task by User ID and Status
   @Get('/:taskId/:status')
   async getTaskStatus(@Param('taskId') taskId, @Param('status') status) {
     const task = await this.taskService.getTaskStatus(taskId, status);
@@ -57,6 +62,8 @@ export class TaskController {
     };
   }
 
+  @Roles('gerencial')
+  @UseGuards(AccessGuard)
   @Delete('/delete/:taskId')
   async deleteTask(@Param('taskId') taskId) {
     const taskDelete = await this.taskService.deleteTask(taskId);
@@ -67,6 +74,8 @@ export class TaskController {
     };
   }
 
+  @Roles('gerencial')
+  @UseGuards(AccessGuard)
   @Put('/update/:taskId')
   async updateTask(
     @Body() createTaskDTO: TaskCreateDTO,

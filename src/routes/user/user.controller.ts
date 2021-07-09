@@ -49,6 +49,7 @@ export class UserController {
     };
   }
 
+  @Roles('gerencial')
   @UseGuards(AccessGuard)
   @Delete('/delete/:userId')
   async deleteUser(@Param('userId') userId) {
