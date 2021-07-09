@@ -98,4 +98,13 @@ export class TaskController {
     const cambio = await this.taskService.checkTask(taskId, userId);
     return cambio;
   }
+
+  @Post('/reportGerencial')
+  async report(@Body('dateInit') dateInit, @Body('dateFin') dateFin) {
+    const report = await this.taskService.reportGerencial(dateInit, dateFin);
+    return {
+      message: 'tasks found in the requested time periodo',
+      report,
+    };
+  }
 }

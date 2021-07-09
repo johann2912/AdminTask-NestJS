@@ -1,5 +1,9 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
@@ -42,7 +46,7 @@ export class Jwt {
   async decodeToken(token: string) {
     const tokens = await this.tokenModel.findOne({ token }).lean();
     //console.dir({ tokens, token });
-    if (!tokens) throw new BadRequestException('token invalid');
+    if (!tokens) throw new ForbiddenException('invalid token');
     const decodedToken: any = jwt.verify(
       token,
       this.configService.get<string>('ACCESS_SECRET'),
@@ -56,7 +60,7 @@ export class Jwt {
   // Refresh token
   async refreshToken(tokenRefresh: string) {
     const tokens = await this.tokenModel.findOne({ refresh: tokenRefresh });
-    if (!tokens) throw new BadRequestException('token invalid');
+    if (!tokens) throw new ForbiddenException('invalid token');
     const decodedToken: any = jwt.verify(
       tokenRefresh,
       this.configService.get<string>('REFRESH_SECRET'),

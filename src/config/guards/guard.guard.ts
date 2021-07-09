@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Jwt } from '../jwt/jwt.service';
@@ -20,7 +21,7 @@ export class AccessGuard implements CanActivate {
     const auth = request.headers['authorization'];
     const token = auth && auth.split(' ')[1];
     if (typeof token === 'undefined')
-      throw new BadRequestException('token undefined');
+      throw new ForbiddenException('token undefined');
     request.user = await this.jwtService.decodeToken(token);
     if (!roles) return true;
     //console.log('paso');

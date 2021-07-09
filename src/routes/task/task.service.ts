@@ -1,17 +1,19 @@
-import { Model } from 'mongoose';
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Task } from 'src/interfaces/task.interface';
+import { User } from 'src/interfaces/user.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskCreateDTO } from './dto/task.dto';
-import { Task } from 'src/interfaces/task.interface';
-import * as dayjs from 'dayjs';
 import { Etask } from 'src/enums/task.enum';
-import { User } from 'src/interfaces/user.interface';
+import { Model } from 'mongoose';
+import * as dayjs from 'dayjs';
+import { PDFService } from './generateReport/genarePDF.service';
 
 @Injectable()
 export class TaskService {
   constructor(
     @InjectModel('Task') private readonly taskModel: Model<Task>,
     @InjectModel('User') private readonly userSchema: Model<User>,
+    private readonly pdfService: PDFService,
   ) {}
 
   // Search all task
@@ -85,9 +87,82 @@ export class TaskService {
     }
 
     await task.save();
-    const neww = task.estado;
-    console.log(neww);
-    return neww;
+    const completed = task.estado;
+    return {
+      message: 'the task has been done',
+      status: completed,
+    };
+  }
+
+  async reportGerencial(reqInit, reqFin) {
+    const dateI = dayjs(reqInit).toDate();
+    const dateF = dayjs(reqFin).toDate();
+
+    const monthHomeworks = await this.taskModel
+      .find()
+      .where(`createdAt BETWEEN ${dateI} and ${dateF}`);
+
+    let pendiente = 0;
+    let atrasado = 0;
+    let realizado = 0;
+    let realizado_tarde = 0;
+
+    monthHomeworks.forEach((Task, index) => {
+      if (Task.estado === Etask.realizado) {
+        realizado++;
+      }
+
+      if (Task.estado == Etask['realizado tarde']) {
+        realizado_tarde++;
+      }
+
+      if (Task.estado == Etask.pendiente) {
+        const timely = dayjs().diff(dayjs(Task.fechaLimite));
+        if (timely > 0) {
+          monthHomeworks[index].estado = Etask.atrasado;
+          atrasado++;
+        } else {
+          pendiente++;
+        }
+      }
+    });
+
+    console.dir({
+      realizado,
+      realizado_tarde,
+      atrasado,
+      pendiente,
+    });
+
+    const totalTasks = pendiente + atrasado + realizado + realizado_tarde;
+    console.log(`El número total de tareas son: ${totalTasks}`);
+
+    // porcentaajes totales
+
+    const PorcentPendientes = Math.round((pendiente / totalTasks) * 100);
+    const PorcentAtrasadas = Math.round((atrasado / totalTasks) * 100);
+    const PorcentRealizados = Math.round((realizado / totalTasks) * 100);
+    const PorcentTarde = Math.round((realizado_tarde / totalTasks) * 100);
+
+    const porcentaje = Math.round(
+      PorcentPendientes + PorcentAtrasadas + PorcentRealizados + PorcentTarde,
+    );
+
+    // Generar Pdf
+    return this.pdfService.generarPdf(
+      dateI,
+      dateF,
+      totalTasks,
+      pendiente,
+      PorcentPendientes,
+      atrasado,
+      PorcentAtrasadas,
+      realizado,
+      PorcentRealizados,
+      realizado_tarde,
+      PorcentTarde,
+      porcentaje,
+    );
   }
 
   // check task status as "atrasada"
@@ -105,9 +180,10 @@ export class TaskService {
     return variables;
   };
 
+  // pending change of pendiente -> atrasado
   updateStatus = async (atrasada, status) => {
     const variables = [...atrasada];
-    let loquesea = [];
+    const dataFuture = [];
     variables.forEach((esperando, index) => {
       const timely = dayjs().diff(dayjs(esperando.fechaLimite));
       if (esperando.estado == Etask.pendiente) {
@@ -116,10 +192,10 @@ export class TaskService {
         }
       }
       if (variables[index].estado == status) {
-        loquesea.push(variables[index]);
+        dataFuture.push(variables[index]);
       }
     });
 
-    return loquesea;
+    return dataFuture;
   };
 }

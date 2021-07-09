@@ -33,6 +33,7 @@
     "dayjs": "^1.10.6",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.1",
+    "pdfkit": "^0.12.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6"

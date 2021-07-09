@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from 'src/config/jwt/jwt.module';
 import { TaskSchema } from 'src/schemas/task.schema';
 import { UserSchema } from 'src/schemas/user.schema';
+import { PDFService } from './generateReport/genarePDF.service';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 
@@ -16,7 +17,7 @@ import { TaskService } from './task.service';
     JwtModule,
     Reflector,
   ],
-  providers: [TaskService],
+  providers: [TaskService, PDFService],
   controllers: [TaskController],
 })
 export class TaskModule {}
