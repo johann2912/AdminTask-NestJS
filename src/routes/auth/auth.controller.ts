@@ -39,8 +39,13 @@ export class AuthController {
     };
   }
 
-  @Get('/refresh/:tokenId')
-  refreshToken() {
-    return 'refrescar token';
+  @Get('/refresh')
+  async refreshToken(@Req() req) {
+    const refresh = await this.authService.refresh(req);
+    if (!refresh)
+      throw new NotFoundException('an error occurred try again later');
+    return {
+      refresh,
+    };
   }
 }

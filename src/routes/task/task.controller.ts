@@ -89,9 +89,13 @@ export class TaskController {
     };
   }
 
-  @Patch('/check/:id')
-  async checkTask(@Param('id') id: string) {
-    const cambio = await this.taskService.checkTask(id);
+  @UseGuards(AccessGuard)
+  @Patch('/check/:taskId/:userId')
+  async checkTask(
+    @Param('taskId') taskId: string,
+    @Param('userId') userId: string,
+  ) {
+    const cambio = await this.taskService.checkTask(taskId, userId);
     return cambio;
   }
 }

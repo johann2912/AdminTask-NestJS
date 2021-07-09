@@ -10,7 +10,8 @@ import { User } from 'src/interfaces/user.interface';
 @Injectable()
 export class TaskService {
   constructor(
-    @InjectModel('Task') private readonly taskModel: Model<Task>, //@InjectModel('User') private readonly userSchema: Model<User>,
+    @InjectModel('Task') private readonly taskModel: Model<Task>,
+    @InjectModel('User') private readonly userSchema: Model<User>,
   ) {}
 
   // Search all task
@@ -68,8 +69,13 @@ export class TaskService {
     return taskUpdate;
   }
 
-  async checkTask(taskID: string) {
-    const task = await this.taskModel.findById(taskID);
+  async checkTask(taskID: string, userId: string) {
+    const task = await this.taskModel.findOne({ _id: taskID, usuario: userId });
+    if (task == null)
+      throw new ForbiddenException(
+        'the user entered is not the person who has the assigned task',
+      );
+
     const timely = dayjs().diff(dayjs(task.fechaLimite));
 
     if (timely <= 0) {
