@@ -7,12 +7,14 @@ import { UserSchema } from 'src/schemas/user.schema';
 import { PDFService } from './generateReport/genarePDF.service';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
+import { JwtSchema } from 'src/schemas/jwt.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'Task', schema: TaskSchema },
       { name: 'User', schema: UserSchema },
+      { name: 'JwtSchema', schema: JwtSchema },
     ]),
     JwtModule,
     Reflector,

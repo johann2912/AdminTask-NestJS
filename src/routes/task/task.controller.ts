@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   UseGuards,
+  Req,
   BadRequestException,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
@@ -20,6 +21,7 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @ApiTags('task')
 @Controller('task')
@@ -71,7 +73,7 @@ export class TaskController {
   @ApiOkResponse({ description: 'Task found successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
   @ApiBearerAuth()
-  @Get('/:taskId/:status')
+  @Get('/:userId/:status')
   async getTaskStatus(
     @Param('userId') userId: string,
     @Param('status') status: number,
@@ -121,12 +123,9 @@ export class TaskController {
   @ApiOkResponse({ description: 'Task updated successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
   @ApiBearerAuth()
-  @Patch('/check/:taskId/:userId')
-  async checkTask(
-    @Param('taskId') taskId: string,
-    @Param('userId') userId: string,
-  ) {
-    const cambio = await this.taskService.checkTask(taskId, userId);
+  @Patch('/check/:taskId')
+  async checkTask(@Param('taskId') taskId: string, @Req() req: Request) {
+    const cambio = await this.taskService.checkTask(taskId, req);
     return cambio;
   }
 

@@ -1,6 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Task } from 'src/interfaces/task.interface';
-import { User } from 'src/interfaces/user.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskCreateDTO } from './dto/task.dto';
 import { Etask } from 'src/enums/task.enum';
@@ -12,13 +11,13 @@ import { PDFService } from './generateReport/genarePDF.service';
 export class TaskService {
   constructor(
     @InjectModel('Task') private readonly taskModel: Model<Task>,
-    @InjectModel('User') private readonly userSchema: Model<User>,
     private readonly pdfService: PDFService,
   ) {}
 
   // Search all task
   async getTasks(): Promise<Task[]> {
-    const tasks = await this.taskModel.find(); //.populate('usuario');
+    const tasks = await this.taskModel.find().populate('usuario');
+    console.log(tasks[0].usuario);
     if (!tasks) throw new ForbiddenException('there is no task yet');
     const tasksAll = await this.atrasadaStatus(tasks);
     return tasksAll;
@@ -26,18 +25,22 @@ export class TaskService {
 
   // Search task for ID user
   async getTask(taskID: string): Promise<Task[]> {
-    const task = await this.taskModel.find({
-      usuario: taskID,
-    });
+    const task = await this.taskModel
+      .find({
+        usuario: taskID,
+      })
+      .populate('usuario');
     if (!task) throw new ForbiddenException('user does not exist');
     const tasksAll = await this.atrasadaStatus(task);
     return tasksAll;
   }
 
   // Search task for ID user and status
-  async getTaskStatus(taskID: string, status: number): Promise<Task[]> {
+  async getTaskStatus(userID: string, status: number): Promise<Task[]> {
+    console.log(userID, '--->', status);
     const taskStatus = await this.taskModel.find({
-      usuario: taskID,
+      usuario: userID,
+      estado: status,
     });
     if (!taskStatus)
       throw new ForbiddenException('an error has occurred, please try again');
@@ -46,7 +49,7 @@ export class TaskService {
   }
 
   async createTask(createTaskID: TaskCreateDTO): Promise<Task> {
-    const taskNew = new this.taskModel(createTaskID);
+    const taskNew = new this.taskModel(createTaskID).populate('usuario');
     if (!taskNew)
       throw new ForbiddenException('an error has occurred, please try again');
     await taskNew.save();
@@ -61,18 +64,24 @@ export class TaskService {
   }
 
   async updateTask(taskID: string, createTaskID: TaskCreateDTO): Promise<Task> {
-    const taskUpdate = await this.taskModel.findByIdAndUpdate(
-      taskID,
-      createTaskID,
-      { new: true },
-    );
+    const taskUpdate = await this.taskModel
+      .findByIdAndUpdate(taskID, createTaskID, { new: true })
+      .populate('usuario');
     if (!taskUpdate)
       throw new ForbiddenException('an error has occurred, please try again');
     return taskUpdate;
   }
 
-  async checkTask(taskID: string, userId: string) {
-    const task = await this.taskModel.findOne({ _id: taskID, usuario: userId });
+  async checkTask(taskID: string, req) {
+    const task = await this.taskModel
+      .findOne({
+        _id: taskID,
+        usuario: req.user,
+      })
+      .populate('usuario');
+
+    console.log(task);
+
     if (task == null)
       throw new ForbiddenException(
         'the user entered is not the person who has the assigned task',

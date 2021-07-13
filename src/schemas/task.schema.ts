@@ -3,11 +3,13 @@ import { Etask } from 'src/enums/task.enum';
 
 export const TaskSchema = new Schema(
   {
-    usuario: {
-      ref: 'user',
-      type: Types.ObjectId,
-      required: true,
-    },
+    usuario: [
+      {
+        ref: 'User',
+        type: Types.ObjectId,
+        required: true,
+      },
+    ],
     compromiso: {
       type: String,
       required: true,
