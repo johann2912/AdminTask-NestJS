@@ -59,7 +59,9 @@ export class TaskService {
 
   // Search my task
   async myTask(req): Promise<Task[]> {
-    const task = await this.taskModel.find({ usuario: req.user });
+    const task = await this.taskModel
+      .find({ usuario: req.user })
+      .populate('usuario');
     if (!task) throw new ForbiddenException('user does not exist');
     return task;
   }
