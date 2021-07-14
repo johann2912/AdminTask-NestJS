@@ -24,6 +24,7 @@ export class AuthService {
     const user = await this.authModel
       .findOne({
         email: email,
+        isDeleted: false,
       })
       .select('password _id')
       .lean();

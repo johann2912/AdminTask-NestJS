@@ -1,17 +1,18 @@
 import * as bcrypt from 'bcrypt';
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserCreateDTO } from './dto/user.dto';
 import { User } from 'src/interfaces/user.interface';
-import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
   async getUsers(): Promise<User[]> {
-    const users = await this.userModel.find();
+    const users = await this.userModel.find({
+      isDeleted: false,
+    });
     return users;
   }
 
@@ -25,7 +26,7 @@ export class UserService {
       email: createUserID.email,
     });
     if (isEmailExist) {
-      throw new NotFoundException('The user has already been registered');
+      throw new ConflictException('The user has already been registered');
     }
 
     const userNew = new this.userModel(createUserID);
@@ -40,7 +41,9 @@ export class UserService {
   }
 
   async deleteUser(userID: string): Promise<User> {
-    const userDelete = await this.userModel.findByIdAndDelete(userID);
+    const userDelete = await this.userModel.findByIdAndUpdate(userID, {
+      isDeleted: true,
+    });
     return userDelete;
   }
 

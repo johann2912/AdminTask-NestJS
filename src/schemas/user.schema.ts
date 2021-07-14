@@ -38,6 +38,11 @@ export const UserSchema = new Schema(
       enum: [0, 1, 2],
       require: false,
     },
+    isDeleted: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false },
 );

@@ -20,7 +20,26 @@ export class TaskService {
 
   // Search all task
   async getTasks(): Promise<Task[]> {
-    const tasks = await this.taskModel.find().populate('usuario');
+    const tasks = await this.taskModel.aggregate([
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'usuario',
+          foreignField: '_id',
+          as: 'usuario',
+        },
+      },
+      {
+        $unwind: {
+          path: '$usuario',
+        },
+      },
+      {
+        $match: {
+          'usuario.isDeleted': false,
+        },
+      },
+    ]);
     if (!tasks) throw new ForbiddenException('there is no task yet');
     const tasksAll = await this.atrasadaStatus(tasks);
     return tasksAll;
@@ -66,9 +85,11 @@ export class TaskService {
   }
 
   async updateTask(taskID: string, createTaskID: TaskCreateDTO): Promise<Task> {
-    const taskUpdate = await this.taskModel
-      .findByIdAndUpdate(taskID, createTaskID, { new: true })
-      .populate('usuario');
+    const taskUpdate = await this.taskModel.findByIdAndUpdate(
+      taskID,
+      createTaskID,
+      { new: true },
+    );
     if (!taskUpdate)
       throw new ForbiddenException('an error has occurred, please try again');
     return taskUpdate;
