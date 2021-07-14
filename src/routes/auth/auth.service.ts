@@ -70,7 +70,7 @@ export class AuthService {
     const token = await this.tokenModel.findOne({ refresh: data });
     console.log(token);
 
-    if (!token) throw new NotFoundException('the token does not exist');
+    if (!token) throw new ForbiddenException('the token does not exist');
     const tokenRefresh = await this.jwtService.refreshToken(data);
     return tokenRefresh;
   }

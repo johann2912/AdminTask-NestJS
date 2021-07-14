@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Task } from 'src/interfaces/task.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { TaskCreateDTO } from './dto/task.dto';
@@ -17,7 +21,6 @@ export class TaskService {
   // Search all task
   async getTasks(): Promise<Task[]> {
     const tasks = await this.taskModel.find().populate('usuario');
-    console.log(tasks[0].usuario);
     if (!tasks) throw new ForbiddenException('there is no task yet');
     const tasksAll = await this.atrasadaStatus(tasks);
     return tasksAll;
@@ -37,7 +40,6 @@ export class TaskService {
 
   // Search task for ID user and status
   async getTaskStatus(userID: string, status: number): Promise<Task[]> {
-    console.log(userID, '--->', status);
     const taskStatus = await this.taskModel.find({
       usuario: userID,
       estado: status,
@@ -49,7 +51,7 @@ export class TaskService {
   }
 
   async createTask(createTaskID: TaskCreateDTO): Promise<Task> {
-    const taskNew = new this.taskModel(createTaskID).populate('usuario');
+    const taskNew = new this.taskModel(createTaskID);
     if (!taskNew)
       throw new ForbiddenException('an error has occurred, please try again');
     await taskNew.save();
@@ -83,7 +85,7 @@ export class TaskService {
     console.log(task);
 
     if (task == null)
-      throw new ForbiddenException(
+      throw new NotFoundException(
         'the user entered is not the person who has the assigned task',
       );
 
