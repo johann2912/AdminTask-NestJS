@@ -57,12 +57,21 @@ export class TaskService {
     return tasksAll;
   }
 
+  // Search my task
+  async myTask(req): Promise<Task[]> {
+    const task = await this.taskModel.find({ usuario: req.user });
+    if (!task) throw new ForbiddenException('user does not exist');
+    return task;
+  }
+
   // Search task for ID user and status
   async getTaskStatus(userID: string, status: number): Promise<Task[]> {
-    const taskStatus = await this.taskModel.find({
-      usuario: userID,
-      estado: status,
-    });
+    const taskStatus = await this.taskModel
+      .find({
+        usuario: userID,
+        estado: status,
+      })
+      .populate('usuario');
     if (!taskStatus)
       throw new ForbiddenException('an error has occurred, please try again');
     const tasksAll = await this.updateStatus(taskStatus, status);
@@ -102,8 +111,6 @@ export class TaskService {
         usuario: req.user,
       })
       .populate('usuario');
-
-    console.log(task);
 
     if (task == null)
       throw new NotFoundException(
@@ -159,15 +166,7 @@ export class TaskService {
       }
     });
 
-    console.dir({
-      realizado,
-      realizado_tarde,
-      atrasado,
-      pendiente,
-    });
-
     const totalTasks = pendiente + atrasado + realizado + realizado_tarde;
-    console.log(`El número total de tareas son: ${totalTasks}`);
 
     // porcentaajes totales
 

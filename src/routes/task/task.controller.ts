@@ -24,6 +24,7 @@ import {
 import { Request } from 'express';
 
 @ApiTags('task')
+@ApiBearerAuth()
 @Controller('task')
 export class TaskController {
   constructor(private taskService: TaskService) {}
@@ -32,7 +33,6 @@ export class TaskController {
   @UseGuards(AccessGuard)
   @ApiOkResponse({ description: 'User created' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
-  @ApiBearerAuth()
   @Post('/create')
   async createTask(@Body() createTaskDTO: TaskCreateDTO) {
     const task = await this.taskService.createTask(createTaskDTO);
@@ -58,10 +58,9 @@ export class TaskController {
   // Search task by user ID
   @ApiOkResponse({ description: 'Task found successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
-  @ApiBearerAuth()
-  @Get('/:taskId')
-  async getTask(@Param('taskId') taskId: string) {
-    const task = await this.taskService.getTask(taskId);
+  @Get('user/:userId')
+  async getTask(@Param('userId') userId: string) {
+    const task = await this.taskService.getTask(userId);
     if (!task) throw new BadRequestException('Task does not exists');
     return {
       message: 'Successfully Task Search',
@@ -69,11 +68,21 @@ export class TaskController {
     };
   }
 
+  // Search my task
+  @ApiOkResponse({ description: 'Task found successfully' })
+  @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
+  @UseGuards(AccessGuard)
+  @Get('/userMe')
+  async meUser(@Req() req: Request) {
+    const metask = await this.taskService.myTask(req);
+    if (!metask) throw new BadRequestException('Task does not exists');
+    return metask;
+  }
+
   // Search Task by User ID and Status
   @ApiOkResponse({ description: 'Task found successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
-  @ApiBearerAuth()
-  @Get('/:userId/:status')
+  @Get('user/:userId/:status')
   async getTaskStatus(
     @Param('userId') userId: string,
     @Param('status') status: number,
@@ -90,7 +99,6 @@ export class TaskController {
   @UseGuards(AccessGuard)
   @ApiOkResponse({ description: 'Task delete successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
-  @ApiBearerAuth()
   @Delete('/delete/:taskId')
   async deleteTask(@Param('taskId') taskId: string) {
     const taskDelete = await this.taskService.deleteTask(taskId);
@@ -105,7 +113,6 @@ export class TaskController {
   @UseGuards(AccessGuard)
   @ApiOkResponse({ description: 'Task updated successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
-  @ApiBearerAuth()
   @Put('/update/:taskId')
   async updateTask(
     @Body() createTaskDTO: TaskCreateDTO,
@@ -122,7 +129,6 @@ export class TaskController {
   @UseGuards(AccessGuard)
   @ApiOkResponse({ description: 'Task updated successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
-  @ApiBearerAuth()
   @Patch('/check/:taskId')
   async checkTask(@Param('taskId') taskId: string, @Req() req: Request) {
     const cambio = await this.taskService.checkTask(taskId, req);
@@ -133,7 +139,6 @@ export class TaskController {
   @UseGuards(AccessGuard)
   @ApiOkResponse({ description: 'Generate report successfully' })
   @ApiUnauthorizedResponse({ description: 'Invalid Credentials' })
-  @ApiBearerAuth()
   @Post('/reportGerencial')
   async report(@Body('dateInit') dateInit, @Body('dateFin') dateFin) {
     const report = await this.taskService.reportGerencial(dateInit, dateFin);
