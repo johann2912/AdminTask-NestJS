@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { TaskService } from 'src/routes/task/task.service';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class CronService {
 
   private readonly logger = new Logger('Cron');
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron('0 15 15 1/2 * *')
   hideCompleted() {
     this.logger.log(
       'La tarea que se ha marcado ya tiene mucho tiempo, esta misma sera ocultada',

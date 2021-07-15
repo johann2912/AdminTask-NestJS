@@ -28,6 +28,8 @@ export class AuthService {
       })
       .select('password _id')
       .lean();
+    const dataUser = await this.authModel.findOne(user);
+
     if (!user)
       throw new NotFoundException('credentials error, try again later');
     const success = bcrypt.compareSync(password, user.password);
@@ -44,7 +46,7 @@ export class AuthService {
       token.save();
     }
 
-    return tokens;
+    return { tokens, _id: dataUser._id, rol: dataUser.rol };
   }
 
   async compare(req, id) {
