@@ -46,7 +46,7 @@ export class AuthService {
       token.save();
     }
 
-    return { tokens, _id: dataUser._id, rol: dataUser.rol };
+    return { tokens, _id: dataUser.id, rol: dataUser.rol };
   }
 
   async compare(req, id) {
