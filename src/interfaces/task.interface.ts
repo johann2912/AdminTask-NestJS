@@ -6,4 +6,5 @@ export interface Task extends Document {
   fechaLimite: Date;
   fechaCumplimiento: Date;
   estado: number;
+  isCompleted: boolean;
 }

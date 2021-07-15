@@ -21,5 +21,6 @@ import { JwtSchema } from 'src/schemas/jwt.schema';
   ],
   providers: [TaskService, PDFService],
   controllers: [TaskController],
+  exports: [TaskService],
 })
 export class TaskModule {}

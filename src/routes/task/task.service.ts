@@ -37,6 +37,7 @@ export class TaskService {
       {
         $match: {
           'usuario.isDeleted': false,
+          isCompleted: false,
         },
       },
     ]);
@@ -50,6 +51,7 @@ export class TaskService {
     const task = await this.taskModel
       .find({
         usuario: taskID,
+        isCompleted: false,
       })
       .populate('usuario');
     if (!task) throw new ForbiddenException('user does not exist');
@@ -60,7 +62,7 @@ export class TaskService {
   // Search my task
   async myTask(req): Promise<Task[]> {
     const task = await this.taskModel
-      .find({ usuario: req.user })
+      .find({ usuario: req.user, isCompleted: false })
       .populate('usuario');
     if (!task) throw new ForbiddenException('user does not exist');
     return task;
@@ -72,6 +74,7 @@ export class TaskService {
       .find({
         usuario: userID,
         estado: status,
+        isCompleted: false,
       })
       .populate('usuario');
     if (!taskStatus)
@@ -111,10 +114,11 @@ export class TaskService {
       .findOne({
         _id: taskID,
         usuario: req.user,
+        isCompleted: false,
       })
       .populate('usuario');
 
-    if (task == null)
+    if (!task)
       throw new NotFoundException(
         'the user entered is not the person who has the assigned task',
       );
@@ -126,6 +130,8 @@ export class TaskService {
     } else {
       task.estado = Etask['realizado tarde'];
     }
+
+    task.fechaCumplimiento = new Date();
 
     await task.save();
     const completed = task.estado;
@@ -230,5 +236,18 @@ export class TaskService {
     });
 
     return dataFuture;
+  };
+
+  twoDaysLater = async () => {
+    const act = await new Date();
+    act.setDate(act.getDate() - 2);
+    await this.taskModel.updateMany(
+      {
+        isCompleted: false,
+        $or: [{ estado: 3 }, { estado: 1 }],
+        fechaCumplimiento: { $lte: act },
+      },
+      { isCompleted: true },
+    );
   };
 }

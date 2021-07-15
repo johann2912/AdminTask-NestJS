@@ -25,6 +25,11 @@ export const TaskSchema = new Schema(
       type: Number,
       default: Etask.pendiente,
     },
+    isCompleted: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   { timestamps: true, versionKey: false },
 );
